@@ -11,7 +11,9 @@ export async function appRoutes(app: any) {
     });
 
     const { date } = getDayParams.parse(request.query);
-    const weekDay = dayjs(date).get("day");
+
+    const parsedDate = dayjs(date).startOf('day')
+    const weekDay = parsedDate.get("day");
 
     // all possible habits
     // completed habits
@@ -23,14 +25,27 @@ export async function appRoutes(app: any) {
         weekDays: {
           some: {
             week_day: weekDay,
-          }
-        }
-      }
-    })
+          },
+        },
+      },
+    });
 
+    const day = await prisma.day.findUnique({
+      where: {
+        date: parsedDate.toDate(),
+      },
+      include: {
+        dayHabits: true
+      }
+      
+    })
+    const completedHabits = day?.dayHabits.map(dayHabit => {
+      return dayHabit.habit_id
+    })
     return {
-      possibleHabits
-    }
+      possibleHabits,
+      completedHabits
+    };
   });
   //POST
   app.post("/habits", async (request: any) => {
@@ -57,4 +72,5 @@ export async function appRoutes(app: any) {
       },
     });
   });
+
 }

@@ -4,7 +4,9 @@ import Fastify from "fastify";
 import { appRoutes } from "./routes";
 import cors from "@fastify/cors";
 
-const app = Fastify();
+const app = Fastify({
+  logger: {},
+});
 const port = 3333;
 
 app.register(cors);
